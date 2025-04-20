@@ -1,0 +1,133 @@
+🔍 Project Summary & Notes (Drug Interaction Modeling)
+
+✅ Core Files and Structure
+
+main_database_cleaned_and_encoded.csv: Final processed dataset of all drug features (stored in Drugbank_final_database/).
+
+drug_interactions_encoded.csv: Final encoded drug-to-drug interaction file (also in Drugbank_final_database/).
+
+🖠 Feature Engineering Summary
+
+🤩 1. Initial Feature Extraction (from XML)
+
+Parsed a complex DrugBank XML file.
+
+Extracted detailed features: classification, pharmacodynamics, routes, clearance, sequences, experimental properties, drug interactions, categories, pathways, etc.
+
+Created multiple CSVs: main_database.csv, drug_interactions.csv, drug_categories.csv, etc.
+
+🧪 2. Custom Feature Engineering Functions
+
+extract_boiling_point()
+
+Extracts numeric boiling point values from mixed-format strings (e.g., “586.9±60.0 °C at 760 mmHg”).
+
+Returns the average if a range is detected.
+
+extract_melting_point()
+
+Parses entries like "244-247 °C (as chloride salt)" and extracts average temperature values.
+
+extract_isoelectric_point()
+
+Filters out non-numeric values and returns float or NaN.
+
+Handles range cases like "5.4–6.2".
+
+extract_float()
+
+Generic utility to extract numeric value from any unit or formatted text (e.g., "4.64e-02 g/l", ">10 mg/ml").
+
+Used for Water Solubility.
+
+extract_pka()
+
+Extracts pKa values including strongest acidic/basic when available.
+
+Handles sentences like "15.06 (Strongest acidic)" and "9.29 (acid), 4.77 (base)".
+
+🧬 3. SMILES Processing
+
+encode_smiles(smile)
+
+Converts SMILES string to a fixed 8-digit hash value.
+
+Useful for traditional ML models as a categorical identifier.
+
+extract_smiles_features(smile)
+
+Extracts basic molecular descriptors:
+
+Atom count, bond count, ring count.
+
+Number of stereocenters.
+
+Good for adding chemically meaningful structure for ML or DL models.
+
+⚡ Encoding Design Decision:
+
+✅ Kept original SMILES column.
+
+✅ Added both encoded and feature-extracted versions.
+
+⚠️ Note: Enables flexibility between ML and DL pipelines.
+
+🔁 4. Pathway Data Integration
+
+Merged pathways.csv with main_database.csv.
+
+Features created:
+
+pathway_count: Total pathways per drug.
+
+unique_enzyme_count: Distinct enzymes across all pathways.
+
+unique_pathway_categories: Distinct category types.
+
+has_pathway_info: Boolean flag.
+
+✅ Final CSV: main_database_with_properties_and_pathways.csv.
+
+🤖 5. Modeling Preparation Strategy
+
+🧫 Goal:
+
+Build an ensemble model combining:
+
+Linear Regression
+
+Decision Tree
+
+SVM
+
+Random Forest
+
+📂 Input Files for ML:
+
+main_database_cleaned_and_encoded.csv: All drug features.
+
+drug_interactions_encoded.csv: Descriptions converted to labels (planned).
+
+🧠 6. Drug Interaction Label Discussion
+
+Observation:
+
+Interaction descriptions showed repeating patterns with only drug names changing.
+
+Idea: Normalize these descriptions by removing drug names.
+
+Labeling approach considered:
+
+One-hot encoding or frequency-based class mapping of normalized description.
+
+Merge normalized interaction label with features of Drug A and Drug B from main_database.csv.
+
+🔍 7. General Debates & Considerations
+
+📉 No drug had 100% complete data → led to strategies for feature selection and imputation.
+
+🧪 Discussed identifying the most populated/important features.
+
+🗃️ Ensured relational integrity between multiple CSVs using primary_drugbank_id.
+
+✅ Decided on merging SMILES/experimental/pathway info only where it adds usable info to avoid redundancy.

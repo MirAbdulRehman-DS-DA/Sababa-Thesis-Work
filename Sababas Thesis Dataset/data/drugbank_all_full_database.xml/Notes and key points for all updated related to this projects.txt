@@ -1,0 +1,44 @@
+8:31 PM 4/16/2025 Informairon about the thesis project will be added everytime new information is created or some code is added or when the is more to mwntion about the idea or approach.
+
+1. The initial Start, the database was extracted from the Drugbank website after the licence was approved by the organization to access the drugbank database. A total of 17431 drugs data was extracted and close to 1.5 GB worth of data was extracted including the drug to drug interaction.
+
+2. The data was in the form of .xml and .xsd file and the initial extracting of the data took place. The data was divided in to 5 files,
+	1.) drug_categories.csv: This CSV file contains information about the drug categories, along with the Mexican IDs, which are used to identify which drugs belong to categories.
+	    columns: primary_drugbank_id, category, mesh_id.
+	2.) drug_interactions.csv: This CSV file contains information on drug-to-drug interactions. (I would need further assistance with decoding this table.). The first column is the main drug and the drugbank_id is the id of the drug with the interaction and then the name of the drug. and at the end the result or description of the interaction, what kind of reaction does it have.
+	    columns: primary_drugbank_id, drugbank_id, name, description.
+	3.) experimental_properties: This CSV file contained additional features about each drug and some features were not included in some drugs, the file contained only additional information related to each drug.
+	    columns: primary_drugbank_id, kind, value, source.
+	4.) main_database.csv: This CSV file contains information about each drug and some of its features.
+	    columns: type, created, primary_drugbank_id, name, description, cas_number, unii, state, groups, synthesis-reference, indication, pharmacodynamics, mechanism-of-action, toxicity, metabolism, absorption, half-life, protein-binding, route-of-elimination, volume-of-distribution, clearance, classification_description, classification_direct-parent, classification_kingdom, classification_superclass, classification_class, classification_subclass, affected_organisms, food_interactions, sequence.
+	5.) pathways.csv: contains information about drug pathways and categories.
+	    columns: primary_drugbank_id, pathway_smpdb_id, pathway_name, pathway_category, pathway_enzymes.
+
+After cleaning the missing rows from the main_database and merging the remaining features from the experimental_properties to the main_database.csv, a new table was created with the name main_database_with_properties.csv. This csv contained all of the features of all of the drugs. At the end, just for self-clarity, I measured how many drugs have all of their data mentioned against their features. It turns out, out of 17431 drugs, no drug had all of its features mentioned. Meaning at least one or more features were missing from all of the drugs.
+
+Then I moved on to identify or generate a labeled dataset, the interact feature in the drug_interaction.csv file. I tried to identify if any of the drugs have no interaction mentioned in the drug_interction.csv database, and based on that, I can create a binary classification model based on the known interactions (interaction=1) and non-known interactions (interaction=0). After the analysis of the drug interaction data, I found that there are no non-known drug interactions mentioned, as all of the drugs showed 1 (known) in the interaction column. This approach was discontinued.
+
+Now, I took a different approach and thought of using the encoding method, and using this method on the description feature of the drug interactive file. Instead of binary classification (interaction: 1/0), I can turn this into a multiclass classification problem.
+
+While on this idea, I managed to identify some clear repetitive patterns in the description feature and thought that these repetitions could be used as the key to create an encoding method. Although most of them had the same repetitive approach, some of them had different approaches, like drug_A mentioned first and drug_B mentioned at the end, or drug_B mentioned at the start and then drug_A mentioned in between or at the end of the sentence. Both imply interactions, but the subject-object order is reversed. If I want to generalize them into interaction types (i.e., labels), I need to treat these cases equally — both are interactions, just phrased differently.
+
+I created a generalized logic, first detect which drug name appears first in the description. Replacing the primary_drugbank_id with DRUG_A and name (interacting drug name) with DRUG_B. Normalize the text. use this cleaned version as a new interaction_template.csv. Encoding it into labels.
+
+After the encoding process, the new csv file, drug_interactions_encoded.csv was created with a file size of 600 MB and 1048575 entries. 
+
+-> Going back, I need to update the remaining features in the main_database_with_properties.csv file, and also merge the pathway.csv file as well and to update the complete database so that they can be properly implemented in any ML-model.
+
+Now after merging the pathway file with the main csv file, I'll clean the data even more thoroughly. SOme of the features are straightforward and just need a datatype change, but even within them, some entries need to be changed in to the right format, e.g. (> 30 ml, solid, 1.2-3.7 ml).
+
+After this I tried to format most of the features and got great results. At the end I decided to move the newly generated csv files 'main_database_cleaned_and_encoded.csv' and 'drug_interactions_encoded.csv' and move them to a different folder. Now I remember to perform feature engineering on the toxicity feature. This column is very complex and needs some special feature engineering steps to extract additional features from it.  
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+2:37 PM 4/17/2025
+
+I managed to work on the function to extract information from the toxicity feature but till no use. The features I have selected as the output features for the toxicity feature are not collecting the right information. Will work on it tomorrow.
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
